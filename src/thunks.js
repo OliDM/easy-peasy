@@ -30,18 +30,20 @@ const logThunkEventListenerError = (type, err) => {
   console.log(err);
 };
 
-const handleEventDispatchErrors = (type, dispatcher) => (...args) => {
-  try {
-    const result = dispatcher(...args);
-    if (isPromise(result)) {
-      result.catch((err) => {
-        logThunkEventListenerError(type, err);
-      });
+const handleEventDispatchErrors =
+  (type, dispatcher) =>
+  (...args) => {
+    try {
+      const result = dispatcher(...args);
+      if (isPromise(result)) {
+        result.catch((err) => {
+          logThunkEventListenerError(type, err);
+        });
+      }
+    } catch (err) {
+      logThunkEventListenerError(type, err);
     }
-  } catch (err) {
-    logThunkEventListenerError(type, err);
-  }
-};
+  };
 
 export function createThunkActionsCreator(def, _r) {
   const actionCreator = (payload) => {
@@ -81,14 +83,19 @@ export function createThunkActionsCreator(def, _r) {
     const result = _r.dispatch(() => def.thunkHandler(payload, fail));
 
     if (isPromise(result)) {
-      return result.then((resolved) => {
-        if (failure) {
-          dispatchFail(failure);
-        } else {
-          dispatchSuccess(resolved);
-        }
-        return resolved;
-      });
+      return result
+        .then((resolved) => {
+          if (failure) {
+            dispatchFail(failure);
+          } else {
+            dispatchSuccess(resolved);
+          }
+          return resolved;
+        })
+        .catch((err) => {
+          dispatchFail(err);
+          throw err;
+        });
     }
 
     if (failure) {

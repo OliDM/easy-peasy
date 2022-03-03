@@ -1099,11 +1099,11 @@ test('dynamic model with async storage', async () => {
   });
 });
 
-test("multiple changes don't cause concurrent persist operations", async () => {
+test('multiple changes dont cause concurrent persist operations', async () => {
   // ARRANGE
   const memoryStorage = createMemoryStorage(undefined, {
     async: true,
-    asyncTime: 80,
+    asyncTime: 100,
   });
 
   const store = makeStore(

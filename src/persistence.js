@@ -44,7 +44,7 @@ function createStorageWrapper(storage, transformers = []) {
       storage = sessionStorage();
     } else {
       if (process.env.NODE_ENV === 'development') {
-        console.warn(`Invalid storage provider`);
+        console.warn(`Invalid storage provider: ${storage}`);
       }
       storage = noopStorage;
     }
@@ -148,8 +148,10 @@ function createPersistenceClearer(persistKey, _r) {
       return Promise.resolve();
     }
     return pSeries(
-      _r._i._persistenceConfig.map(({ path, config }) => () =>
-        Promise.resolve(config.storage.removeItem(persistKey(path))),
+      _r._i._persistenceConfig.map(
+        ({ path, config }) =>
+          () =>
+            Promise.resolve(config.storage.removeItem(persistKey(path))),
       ),
     );
   };
@@ -232,17 +234,19 @@ export function createPersistor(persistKey, _r) {
 }
 
 export function createPersistMiddleware(persistor, _r) {
-  return ({ getState }) => (next) => (action) => {
-    const state = next(action);
-    if (
-      action &&
-      action.type !== '@action.ePRS' &&
-      _r._i._persistenceConfig.length > 0
-    ) {
-      persistor.persist(getState());
-    }
-    return state;
-  };
+  return ({ getState }) =>
+    (next) =>
+    (action) => {
+      const state = next(action);
+      if (
+        action &&
+        action.type !== '@action.ePRS' &&
+        _r._i._persistenceConfig.length > 0
+      ) {
+        persistor.persist(getState());
+      }
+      return state;
+    };
 }
 
 export function rehydrateStateFromPersistIfNeeded(

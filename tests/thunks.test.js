@@ -104,6 +104,8 @@ describe('errors', () => {
       expect(trackActions.actions).toEqual([
         { type: '@thunk.foo.doSomething(start)', payload },
         { type: '@thunk.foo.error(start)', payload: undefined },
+        { type: '@thunk.foo.error(fail)', payload: undefined, error: err },
+        { type: '@thunk.foo.doSomething(fail)', payload, error: err },
       ]);
 
       expect(e).toBe(err);
